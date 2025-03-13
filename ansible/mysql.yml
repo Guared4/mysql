@@ -1,0 +1,14 @@
+- hosts: all
+  become: yes
+  roles:
+    - common
+
+- hosts: master
+  become: yes
+  roles:
+    - mysql_master
+
+- hosts: slave
+  become: yes
+  roles:
+    - mysql_slave
