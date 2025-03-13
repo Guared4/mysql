@@ -4,10 +4,10 @@
 ### Цель домашнего задания
 Развернуть базу на мастере и настроить так, чтобы реплицировались таблицы:     
 
-| bookmaker          |
-| competition        |
-| market             |
-| odds               |
+| bookmaker          |    
+| competition        |     
+| market             |     
+| odds               |     
 | outcome            |     
 
 Настроить GTID репликацию
