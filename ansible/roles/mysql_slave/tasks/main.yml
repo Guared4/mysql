@@ -1,0 +1,47 @@
+- name: Copy dump to slave
+  copy:
+    src: files/master.sql
+    dest: /tmp/master.sql
+
+- name: Reset GTID on slave (if slave is new and has no important data)
+  mysql_query:
+    query: |
+      RESET MASTER;
+    login_user: root
+    login_password: "{{ root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: 'ansible_hostname == "slave"'
+  tags: replication
+
+- name: Load master dump into slave
+  mysql_db:
+    login_user: root
+    login_password: "{{ root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    name: bet
+    state: import
+    target: /tmp/master.sql
+  when: 'ansible_hostname == "slave"'
+
+- name: Configure replication on slave
+  mysql_replication:
+    mode: changemaster
+    master_host: 192.168.57.10
+    master_port: 3306
+    master_user: repl
+    master_password: "{{ repl_password }}"
+    master_auto_position: 1
+    login_user: root
+    login_password: "{{ root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: 'ansible_hostname == "slave"'
+  tags: replication
+
+- name: Start replication
+  mysql_replication:
+    mode: startslave
+    login_user: root
+    login_password: "{{ root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: 'ansible_hostname == "slave"'
+  tags: replication
