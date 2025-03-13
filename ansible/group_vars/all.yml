@@ -1,0 +1,5 @@
+root_password: "Qazwsx123!"
+repl_password: "Qazwsx456!!"
+mysql_data_dir: "/var/lib/mysql"
+mysql_conf_dir: "/etc/mysql/mysql.conf.d"
+mysql_log_dir: "/var/log/mysql"
