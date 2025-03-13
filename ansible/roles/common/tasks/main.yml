@@ -1,0 +1,75 @@
+- name: Download percona repo
+  get_url:
+    url: https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+    dest: /home/vagrant/
+
+- name: Install packages
+  apt:
+    name:
+      - gnupg2
+      - python3-pip
+    update_cache: true
+
+- name: Install PyMySQL
+  pip:
+    name: PyMySQL
+
+- name: Install repo
+  apt:
+    deb: /home/vagrant/percona-release_latest.generic_all.deb
+
+- name: Setup percona-release
+  shell: percona-release setup ps80
+
+- name: Install percona server
+  apt:
+    name: percona-server-server
+    state: present
+    update_cache: true
+
+- name: Delete default conf
+  file:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    state: absent
+
+- name: Create folder for logs
+  file:
+    name: /vqr/log/mysql
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0644
+
+- name: Copy config files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/mysql/mysql.conf.d/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - 01-base.cnf
+    - 02-max-connections.cnf
+    - 03-performance.cnf
+    - 04-slow-query.cnf
+    - 05-binlog.cnf
+
+- name: Generating .my.cnf file
+  shell: "echo \"[mysql]\nuser='root'\npassword='{{ root_password }}'\n\" > /root/.my.cnf"
+  args:
+    creates: /root/.my.cnf
+
+- name: Setting up root password on MySQL service
+  mysql_user:
+    name: root
+    host: localhost
+    password: "{{ root_password }}"
+    login_user: root
+    login_password: "{{ root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: present
+
+- name: Restart MySQL
+  systemd:
+    name: mysql
+    state: restarted
