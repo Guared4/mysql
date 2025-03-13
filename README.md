@@ -212,7 +212,7 @@ Database changed
 +----+----------------+
 5 rows in set (0.00 sec)
 ```
-Из вывода команды "USE bet; SELECT * FROM bookmaker;" вижу что созданная запись на master пролилась на slave     
+Из вывода команды "USE bet; SELECT * FROM bookmaker;" вижу что созданная запись в master пролилась на slave     
 Репликация работает
 
 ### 4. создал playbook проверки репликации
