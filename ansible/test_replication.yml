@@ -1,0 +1,19 @@
+- name: Test MySQL replication
+  hosts: all
+  become: yes
+  tasks:
+    - name: Debug root_password
+      debug:
+        msg: "root_password is {{ root_password }}"
+
+    - name: Insert test data on master
+      shell: mysql -uroot -p{{ root_password }} -e "INSERT INTO bet.bookmaker (id, bookmaker_name) VALUES (1, '1xbet');"
+      when: 'ansible_hostname == "master"'
+      tags:
+        - insert_data
+
+    - name: Check replication on slave
+      shell: mysql -uroot -p{{ root_password }} -e "SELECT * FROM bet.bookmaker;"
+      when: 'ansible_hostname == "slave"'
+      tags:
+        - check_replication
